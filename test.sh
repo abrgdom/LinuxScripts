@@ -83,8 +83,6 @@ create_group_if_not_exists() {
     fi
 }
 
-echo "=== Setting up directory ==="
-
 # Check and install ACL components if necessary
 check_install_acl
 
