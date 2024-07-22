@@ -1,0 +1,6 @@
+Write an bash script:
+Check if Script is run with sudo rights and Force it to Run with sudo Rights if not. 
+Define the variables directory, owner, group.  Ask for Them with the Dialogs "Enter Directory", "Enter Owner", "Enter Group"
+Check if all necessarsy ACL Compontents are installed and Install them if they doesn´t exist.
+Ensure that the parent directory has the correct ownership and permissions. Set the setgid bit on the directory.
+Create a default ACL to ensure new files and directories inherit the correct permissions
