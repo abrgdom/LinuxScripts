@@ -83,6 +83,35 @@ create_group_if_not_exists() {
     fi
 }
 
+# Function to create a user with adduser (no password) if it does not exist
+create_user_if_not_exists() {
+    local user=$1
+    local group=$2
+    if ! id -u $user &>/dev/null; then
+        echo "User $user does not exist. Creating..."
+        sudo adduser --disabled-password --gecos "" --ingroup $group $user
+        if [ $? -ne 0 ]; then
+            echo "Failed to create user $user. Exiting."
+            exit 1
+        fi
+        echo "User $user created successfully with home directory and no password."
+    else
+        echo "User $user already exists."
+    fi
+
+    # Add the user to the docker group if it exists
+    if getent group docker > /dev/null; then
+        sudo usermod -aG docker $user
+        if [ $? -ne 0 ]; then
+            echo "Failed to add $user to the docker group. Exiting."
+            exit 1
+        fi
+        echo "User $user added to the docker group."
+    else
+        echo "Docker group does not exist. Skipping docker group assignment."
+    fi
+}
+
 # Check and install ACL components if necessary
 check_install_acl
 
@@ -91,11 +120,14 @@ echo "=== Setting up directory ==="
 
 # Prompt for variables
 directory=$(prompt_for_value "Enter Directory")
-owner=$(prompt_for_value "Enter Owner")
+owner=$(prompt_for_value "Enter Owner (User)")
 group=$(prompt_for_value "Enter Group")
 
 # Create group if it does not exist
 create_group_if_not_exists $group
+
+# Create user if it does not exist
+create_user_if_not_exists $owner $group
 
 # Ensure correct ownership, permissions, set setgid bit, and create default ACLs
 setup_directory $directory $owner $group
